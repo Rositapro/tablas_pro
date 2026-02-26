@@ -1,55 +1,50 @@
-function comenzarPractica() {
-    const nombre = document.getElementById('nombreUsuario').value;
-    const tabla = document.getElementById('tablaElegida').value;
+function empezar() {
+    const u = document.getElementById('user').value;
+    const t = document.getElementById('num_tabla').value;
+    if(!u || t==="") return alert("Faltan datos");
 
-    if (!nombre || tabla === "") {
-        alert("Por favor llena todos los campos");
-        return;
+    document.getElementById('inicio').style.display = 'none';
+    document.getElementById('quiz').style.display = 'block';
+    document.getElementById('txtUser').innerText = `Estudiante: ${u} | Tabla del ${t}`;
+
+    let h = "";
+    for(let i=1; i<=10; i++) {
+        h += `<div class="pregunta-fila"><span>${t} x ${i} = </span>
+              <input type="number" class="form-control w-25 res" data-r="${t*i}"></div>`;
     }
-
-    document.getElementById('setup-section').style.display = 'none';
-    document.getElementById('quiz-section').style.display = 'block';
-    document.getElementById('tituloQuiz').innerText = `Tabla del ${tabla} - Practicando: ${nombre}`;
-
-    let container = document.getElementById('preguntasContainer');
-    container.innerHTML = "";
-
-    for (let i = 1; i <= 10; i++) {
-        container.innerHTML += `
-            <div class="pregunta-row">
-                ${tabla} x ${i} = 
-                <input type="number" class="respuesta-user form-control d-inline-block w-25" data-correcta="${tabla * i}">
-            </div>`;
-    }
+    document.getElementById('preguntas').innerHTML = h;
 }
 
-function calificar() {
-    let inputs = document.querySelectorAll('.respuesta-user');
-    let aciertos = 0;
+function finalizar() {
+    let pts = 0;
+    let rev = "";
+    const u = document.getElementById('user').value;
+    const t = document.getElementById('num_tabla').value;
 
-    inputs.forEach(input => {
-        if (parseInt(input.value) === parseInt(input.dataset.correcta)) {
-            aciertos++;
-        }
+    document.querySelectorAll('.res').forEach((input, i) => {
+        let respUser = parseInt(input.value) || 0;
+        let respCorr = parseInt(input.dataset.r);
+        let esCorrecto = respUser === respCorr;
+        if(esCorrecto) pts++;
+
+        rev += `<div class="list-group-item ${esCorrecto ? 'list-group-item-success' : 'list-group-item-danger'} d-flex justify-content-between">
+                    <span>${t} x ${i+1} = ${respCorr}</span>
+                    <span>${esCorrecto ? '✅' : '❌ Pusiste: '+respUser}</span>
+                </div>`;
     });
 
-    // Llenar formulario oculto para PHP
-    document.getElementById('postNombre').value = document.getElementById('nombreUsuario').value;
-    document.getElementById('postTabla').value = document.getElementById('tablaElegida').value;
-    document.getElementById('postPuntos').value = aciertos;
+    document.getElementById('resumenPuntos').innerText = `¡${u}, sacaste ${pts}/10!`;
+    document.getElementById('listaRevision').innerHTML = rev;
 
-    // Enviar a la base de datos
-    document.getElementById('formOculto').submit();
+    var modal = new bootstrap.Modal(document.getElementById('modalResultados'));
+    modal.show();
+
+    let d = new FormData();
+    d.append('nombre', u); d.append('tabla', t); d.append('puntos', pts);
+    fetch('index.php', { method: 'POST', body: d });
 }
 
-// Botón Modo Noche/Día
-document.getElementById('toggleTheme').addEventListener('click', () => {
-    const body = document.body;
-    if (body.classList.contains('light-mode')) {
-        body.classList.replace('light-mode', 'dark-mode');
-        document.getElementById('toggleTheme').innerText = "☀️ Modo Día";
-    } else {
-        body.classList.replace('dark-mode', 'light-mode');
-        document.getElementById('toggleTheme').innerText = "🌙 Modo Noche";
-    }
-});
+document.getElementById('btnTema').onclick = () => {
+    document.body.classList.toggle('dark');
+    document.getElementById('btnTema').innerText = document.body.classList.contains('dark') ? "☀️ Modo Día" : "🌙 Modo Noche";
+};
