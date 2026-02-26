@@ -1,24 +1,41 @@
+:root {
+    --rosa-fuerte: #ff4d6d;
+    --rosa-claro: rgba(255, 184, 198, 0.85);
+}
+
 body {
     background-image: url('fondo.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    transition: all 0.4s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    transition: 0.4s;
 }
 
 .card {
+    position: relative;
+    z-index: 10; /* Asegura que la tarjeta esté sobre el fondo */
     background-color: rgba(255, 255, 255, 0.9) !important;
-    backdrop-filter: blur(8px);
-    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 2px solid var(--rosa-claro) !important;
+    border-radius: 25px;
+    width: 90%;
+    max-width: 450px;
 }
 
-body.dark {
-    background-image: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('fondo.jpg');
+.card-header {
+    background-color: var(--rosa-fuerte) !important;
+    color: white !important;
+    border-radius: 23px 23px 0 0 !important;
 }
 
-body.dark .card {
-    background-color: rgba(30, 30, 30, 0.9) !important;
-    color: white;
+.btn-primary {
+    background-color: var(--rosa-fuerte) !important;
+    border: none !important;
 }
 
 .pregunta-fila {
@@ -26,9 +43,21 @@ body.dark .card {
     justify-content: space-between;
     align-items: center;
     padding: 10px;
-    background: rgba(0,0,0,0.05);
+    background: rgba(255, 184, 198, 0.2);
     margin-bottom: 8px;
     border-radius: 10px;
 }
 
-body.dark .pregunta-fila { background: rgba(255,255,255,0.1); }
+/* Modo Noche */
+body.dark {
+    background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('fondo.jpg');
+}
+
+body.dark .card {
+    background-color: rgba(60, 10, 25, 0.9) !important;
+    color: white !important;
+}
+
+body.dark .pregunta-fila {
+    background: rgba(255, 255, 255, 0.1);
+}

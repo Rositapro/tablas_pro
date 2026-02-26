@@ -1,50 +1,67 @@
 function empezar() {
-    const u = document.getElementById('user').value;
-    const t = document.getElementById('num_tabla').value;
-    if(!u || t==="") return alert("Faltan datos");
+    const user = document.getElementById('user').value;
+    const tabla = document.getElementById('num_tabla').value;
+    
+    if(!user || tabla === "") {
+        alert("Por favor, ingresa tu nombre y la tabla.");
+        return;
+    }
 
     document.getElementById('inicio').style.display = 'none';
     document.getElementById('quiz').style.display = 'block';
-    document.getElementById('txtUser').innerText = `Estudiante: ${u} | Tabla del ${t}`;
+    document.getElementById('txtUser').innerText = "Estudiante: " + user;
 
-    let h = "";
+    let container = document.getElementById('preguntas');
+    container.innerHTML = "";
+
     for(let i=1; i<=10; i++) {
-        h += `<div class="pregunta-fila"><span>${t} x ${i} = </span>
-              <input type="number" class="form-control w-25 res" data-r="${t*i}"></div>`;
+        container.innerHTML += `
+            <div class="pregunta-fila">
+                <span>${tabla} x ${i} = </span>
+                <input type="number" class="form-control w-25 res-input" data-r="${tabla * i}">
+            </div>`;
     }
-    document.getElementById('preguntas').innerHTML = h;
 }
 
 function finalizar() {
-    let pts = 0;
-    let rev = "";
-    const u = document.getElementById('user').value;
-    const t = document.getElementById('num_tabla').value;
+    let puntos = 0;
+    let revision = "";
+    const user = document.getElementById('user').value;
+    const tabla = document.getElementById('num_tabla').value;
+    const inputs = document.querySelectorAll('.res-input');
 
-    document.querySelectorAll('.res').forEach((input, i) => {
+    inputs.forEach((input, i) => {
         let respUser = parseInt(input.value) || 0;
         let respCorr = parseInt(input.dataset.r);
-        let esCorrecto = respUser === respCorr;
-        if(esCorrecto) pts++;
+        let esCorrecto = (respUser === respCorr);
+        
+        if(esCorrecto) puntos++;
 
-        rev += `<div class="list-group-item ${esCorrecto ? 'list-group-item-success' : 'list-group-item-danger'} d-flex justify-content-between">
-                    <span>${t} x ${i+1} = ${respCorr}</span>
-                    <span>${esCorrecto ? '✅' : '❌ Pusiste: '+respUser}</span>
-                </div>`;
+        revision += `
+            <div class="list-group-item ${esCorrecto ? 'list-group-item-success' : 'list-group-item-danger'} d-flex justify-content-between">
+                <span>${tabla} x ${i+1} = ${respCorr}</span>
+                <span>${esCorrecto ? '✅' : '❌ Pusiste: '+respUser}</span>
+            </div>`;
     });
 
-    document.getElementById('resumenPuntos').innerText = `¡${u}, sacaste ${pts}/10!`;
-    document.getElementById('listaRevision').innerHTML = rev;
+    // Mostrar resultados en el Modal
+    document.getElementById('resumenPuntos').innerText = "¡" + user + ", lograste " + puntos + "/10!";
+    document.getElementById('listaRevision').innerHTML = revision;
 
-    var modal = new bootstrap.Modal(document.getElementById('modalResultados'));
-    modal.show();
+    let modalResultados = new bootstrap.Modal(document.getElementById('modalResultados'));
+    modalResultados.show();
 
-    let d = new FormData();
-    d.append('nombre', u); d.append('tabla', t); d.append('puntos', pts);
-    fetch('index.php', { method: 'POST', body: d });
+    // Guardar en la Base de Datos
+    let datos = new FormData();
+    datos.append('nombre', user);
+    datos.append('tabla', tabla);
+    datos.append('puntos', puntos);
+    
+    fetch('index.php', { method: 'POST', body: datos });
 }
 
-document.getElementById('btnTema').onclick = () => {
+// Botón de Modo Noche
+document.getElementById('btnTema').onclick = function() {
     document.body.classList.toggle('dark');
-    document.getElementById('btnTema').innerText = document.body.classList.contains('dark') ? "☀️ Modo Día" : "🌙 Modo Noche";
+    this.innerText = document.body.classList.contains('dark') ? "☀️ Modo Día" : "🌙 Modo Noche";
 };
